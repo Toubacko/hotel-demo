@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Example Hotel Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Live demo by Toubacko: how a hotel sells experience packages on its own website, alone or together with partner hotels.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a slim Toubacko demo frame (sticky) wraps a fictional lakeside hotel website; scenario toggle reveals the partner-hotel section. */
+:root{
+  --paper:#F2F5F3; --card:#FFFFFF; --ink:#16262B; --muted:#56676A; --line:#D3DCD8;
+  --lake:#1E4B56; --lake-soft:#E1ECEA; --gold:#A97A2F;
+  --sky-top:#C9DDE0; --sky-bottom:#EEF2EE; --m-far:#A9BFC2; --m-mid:#7E9A9E; --m-near:#4E6F74; --water:#5C8189;
+  --tb-blue:#2295D7; --tb-ink:#373435; --tb-bar:#FFFFFF; --tb-soft:#E6F3FB; --tb-line:#E2E6E8;
+  --fade:rgba(242,245,243,.9);
+  --f-display:"Gloock", "Georgia", "Times New Roman", serif;
+  --f-body:"Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1B1E; --card:#162629; --ink:#E6EEEC; --muted:#9AADAD; --line:#27393C;
+  --lake:#93C6C9; --lake-soft:#1A2E31; --gold:#D8AA5C;
+  --sky-top:#14262C; --sky-bottom:#24393C; --m-far:#2C4448; --m-mid:#22383C; --m-near:#182A2E; --water:#1E3438;
+  --tb-blue:#2EA3E6; --tb-ink:#F1F4F5; --tb-bar:#0A1416; --tb-soft:#12283A; --tb-line:#22333A; --fade:rgba(15,27,30,.86); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1B1E; --card:#162629; --ink:#E6EEEC; --muted:#9AADAD; --line:#27393C;
+  --lake:#93C6C9; --lake-soft:#1A2E31; --gold:#D8AA5C;
+  --sky-top:#14262C; --sky-bottom:#24393C; --m-far:#2C4448; --m-mid:#22383C; --m-near:#182A2E; --water:#1E3438;
+  --tb-blue:#2EA3E6; --tb-ink:#F1F4F5; --tb-bar:#0A1416; --tb-soft:#12283A; --tb-line:#22333A; --fade:rgba(15,27,30,.86); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+img{max-width:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--tb-bar)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.1}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--tb-blue);outline-offset:2px}
+
+/* ---------- Toubacko demo frame ---------- */
+.tb{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--tb-bar);border-bottom:1px solid var(--tb-line);color:var(--tb-ink);font-size:14px}
+.tb .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:10px}
+.tb-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.tb-word{font-weight:700;font-size:20px;letter-spacing:-.02em;line-height:1}
+.tb-word b{color:var(--tb-blue);font-weight:700}
+.tb-pill{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--tb-blue);color:#fff;padding:4px 8px;border-radius:4px;white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--tb-line);border-radius:999px;padding:3px;gap:2px;background:var(--tb-soft)}
+.seg button{border:0;background:transparent;color:var(--tb-ink);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--tb-blue);color:#fff}
+.steps{display:inline-flex;border:1px solid var(--tb-line);border-radius:999px;padding:3px;gap:2px;background:var(--tb-soft)}
+.steps a{text-decoration:none;color:var(--tb-ink);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+.steps a[aria-current="page"]{background:var(--tb-ink);color:var(--tb-bar)}
+.steps a span{opacity:.7;margin-right:4px}
+.assoc-link{display:inline-block;margin-top:14px;font-weight:600;color:var(--lake)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chk input{accent-color:var(--tb-blue);width:16px;height:16px}
+.langs{display:inline-flex;gap:2px}
+.langs button{border:0;background:transparent;color:var(--tb-ink);font-size:12px;font-weight:700;letter-spacing:.06em;padding:5px 6px;border-radius:4px;opacity:.55}
+.langs button[aria-pressed="true"]{opacity:1;background:var(--tb-soft);color:var(--tb-blue)}
+.tb-cta{color:var(--tb-blue);font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap}
+.tb-cta:hover{text-decoration:underline}
+.tb-intro{background:var(--tb-soft);border-bottom:1px solid var(--tb-line);color:var(--tb-ink);font-size:14px}
+.tb-intro .wrap{padding-block:9px}
+
+/* annotations */
+.note{display:none;position:relative;font-family:var(--f-body);font-size:13px;line-height:1.4;color:var(--tb-ink);background:var(--tb-soft);border:1.5px solid var(--tb-blue);border-radius:8px;padding:8px 10px 8px 34px;max-width:34ch;text-align:left}
+.note::before{content:attr(data-n);position:absolute;left:8px;top:8px;width:18px;height:18px;border-radius:50%;background:var(--tb-blue);color:#fff;font-weight:700;font-size:11px;display:grid;place-items:center}
+body.notes .note{display:block}
+
+/* ---------- hotel site ---------- */
+.h-nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px;flex-wrap:wrap}
+.h-logo{display:flex;flex-direction:column;line-height:1}
+.h-logo strong{font-family:var(--f-display);font-weight:400;font-size:26px}
+.h-logo span{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.h-logo em{font-style:normal;color:var(--gold)}
+.h-links{display:flex;gap:22px;font-size:14px;font-weight:500;flex-wrap:wrap}
+.h-links a{text-decoration:none;color:var(--muted)}
+.h-links a:hover{color:var(--ink)}
+
+.hero{position:relative;overflow:hidden;border-block:1px solid var(--line)}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 55%;display:block}
+.hero-fade{position:absolute;inset:0;background:linear-gradient(90deg,var(--fade) 0%,var(--fade) 22%,transparent 62%)}
+@media (max-width:700px){.hero-fade{background:linear-gradient(180deg,var(--fade) 0%,var(--fade) 55%,transparent 92%)}}
+.hero .wrap{position:relative;padding-block:clamp(48px,9vw,110px) clamp(120px,16vw,190px);display:grid;gap:18px}
+.kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--lake)}
+.hero h1{font-size:clamp(40px,6.4vw,76px);max-width:13ch}
+.hero p.lead{font-size:18px;max-width:46ch;color:var(--ink)}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;margin-top:6px}
+.btn-x{display:inline-flex;align-items:center;gap:10px;border:0;background:var(--lake);color:var(--paper);padding:14px 22px;border-radius:2px;font-weight:600;font-size:15px;letter-spacing:.02em}
+.btn-x:hover{filter:brightness(1.08)}
+.btn-x svg{width:16px;height:16px}
+.btn-ghost{border:1px solid var(--ink);background:transparent;color:var(--ink);padding:13px 18px;border-radius:2px;font-weight:600;font-size:15px;opacity:.75}
+.demo-tag{font-size:11px;font-weight:600;color:var(--muted);margin-left:6px}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border-bottom:1px solid var(--line)}
+.facts div{padding:18px 16px;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:0}
+.facts dt{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.facts dd{margin:4px 0 0;font-family:var(--f-display);font-size:24px;font-variant-numeric:tabular-nums}
+
+section.block{padding-block:clamp(48px,7vw,88px)}
+.sec-head{display:grid;gap:12px;max-width:62ch;margin-bottom:34px}
+.sec-head h2{font-size:clamp(30px,4vw,46px)}
+.sec-head p{color:var(--muted);font-size:17px}
+
+.pk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+.pk{background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.pk-top{height:8px;background:var(--lake)}
+.pk:nth-child(2) .pk-top{background:var(--m-near)}
+.pk:nth-child(3) .pk-top{background:var(--gold)}
+.pk:nth-child(4) .pk-top{background:var(--water)}
+.pk-body{padding:20px;display:flex;flex-direction:column;gap:12px;flex:1}
+.pk-nights{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.pk h3{font-size:25px}
+.pk p{color:var(--muted);font-size:15px}
+.perks{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.perks li{font-size:12px;font-weight:600;border:1px solid var(--line);padding:4px 8px;border-radius:999px;color:var(--ink)}
+.pk-foot{margin-top:auto;display:flex;align-items:end;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.price small{display:block;font-size:12px;color:var(--muted)}
+.price strong{font-family:var(--f-display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums}
+.pk .btn-x{padding:10px 14px;font-size:13px}
+.notes-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+/* group section */
+.group{background:var(--lake-soft);border-block:1px solid var(--line)}
+.group-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:center}
+@media (max-width:820px){.group-grid{grid-template-columns:1fr}}
+.map{background:var(--card);border:1px solid var(--line);padding:12px;overflow-x:auto}
+.map svg{display:block;width:100%;height:auto;min-width:300px}
+.houses{list-style:none;padding:0;margin:0 0 24px;display:grid;gap:0;border-top:1px solid var(--line)}
+.houses li{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.houses .n{font-family:var(--f-display);font-size:20px;color:var(--gold)}
+.houses strong{font-weight:600}
+.houses span{font-size:14px;color:var(--muted)}
+.houses .you{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lake)}
+
+footer{border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+footer .wrap{padding-block:28px;display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+footer .tbf{color:var(--tb-ink)}
+footer .tbf b{color:var(--tb-blue)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(10,20,22,.55);display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.modal-box{background:var(--card);width:min(980px,100%);height:min(92vh,880px);display:flex;flex-direction:column;border-radius:6px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal-head strong{font-family:var(--f-display);font-weight:400;font-size:20px}
+.x{border:0;background:transparent;color:var(--ink);font-size:26px;line-height:1;padding:2px 8px}
+.modal iframe{flex:1;width:100%;border:0;background:#fff}
+.modal-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.modal-foot a{color:var(--tb-blue);font-weight:600}
+@media (prefers-reduced-motion:no-preference){.modal-box{animation:up .25s ease-out}@keyframes up{from{transform:translateY(12px);opacity:.6}to{transform:none;opacity:1}}}
+@media (max-width:560px){.tb-right{margin-left:0;width:100%;justify-content:space-between}.facts div{border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<!-- ============ Toubacko demo frame ============ -->
+<header class="tb" aria-label="Toubacko demo controls">
+  <div class="wrap">
+    <a class="tb-brand" href="https://toubacko.com" target="_blank" rel="noopener">
+      <span class="tb-word">Tou<b>backo</b></span>
+      <span class="tb-pill" data-i18n="pill">Live demo</span>
+    </a>
+    <nav class="steps" aria-label="Demo series">
+      <a href="#" aria-current="page"><span>1</span><i data-i18n="st1" style="font-style:normal">Hotel</i></a>
+      <a href="https://association.toubacko.com#from-hotel"><span>2</span><i data-i18n="st2" style="font-style:normal">Association</i></a>
+      <a href="https://toubacko.com/be-inspired/localHeroes.html" target="_blank" rel="noopener"><span>3</span><i data-i18n="st3" style="font-style:normal">Local Hero</i></a>
+    </nav>
+    <div class="seg" role="group" aria-label="Scenario">
+      <button id="s1" aria-pressed="true" data-i18n="s1">One hotel</button>
+      <button id="s2" aria-pressed="false" data-i18n="s2">Hotel group</button>
+    </div>
+    <div class="tb-right">
+      <label class="chk"><input type="checkbox" id="notesToggle"><span data-i18n="explain">Explain</span></label>
+      <div class="langs" role="group" aria-label="Language">
+        <button data-lang="en">EN</button><button data-lang="de">DE</button><button data-lang="fr">FR</button><button data-lang="pt">PT</button>
+      </div>
+      <a class="tb-cta" href="https://toubacko.com" target="_blank" rel="noopener" data-i18n="yourhotel">Your hotel too? →</a>
+    </div>
+  </div>
+</header>
+<div class="tb-intro"><div class="wrap" data-i18n="intro">This is how Toubacko looks on a hotel's own website. Click "Live the Experience" and play a booking through to the end. Everything works.</div></div>
+
+<!-- ============ Fictional hotel website ============ -->
+<nav class="h-nav">
+  <div class="wrap">
+    <div class="h-logo"><strong>Example Hotel</strong><span>Vitznau · <em data-i18n="demo">Demo</em></span></div>
+    <div class="h-links">
+      <a href="#rooms" data-i18n="nav_rooms">Rooms</a>
+      <a href="#experiences" data-i18n="nav_exp">Experiences</a>
+      <a href="#partners" id="navPartners" hidden data-i18n="nav_partners">Partner hotels</a>
+      <a href="#contact" data-i18n="nav_contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="rooms">
+  <img class="hero-img" src="hero.jpg" alt="Hotel terrace on Lake Lucerne in the evening light" fetchpriority="high">
+  <div class="hero-fade" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="kicker" data-i18n="kicker">Vitznau · Lake Lucerne</div>
+    <h1 data-i18n="h1">On the water, below the Rigi.</h1>
+    <p class="lead" data-i18n="lead">A small lakeside house with 24 rooms, a terrace over the water and a kitchen that knows its farmers by name.</p>
+    <div class="hero-actions">
+      <button class="btn-x" data-open="single">Live the Experience <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+      <button class="btn-ghost" type="button" disabled><span data-i18n="bookroom">Book a room</span><span class="demo-tag">(demo)</span></button>
+    </div>
+    <div class="note" data-n="1" data-i18n="n1">One code snippet on the hotel's own website. No new website, no booking portal in between.</div>
+  </div>
+</header>
+
+<dl class="facts wrap" aria-label="Hotel facts">
+  <div><dt data-i18n="f_rooms">Rooms</dt><dd>24</dd></div>
+  <div><dt data-i18n="f_lake">To the lake</dt><dd>30 m</dd></div>
+  <div><dt data-i18n="f_rigi">Rigi railway</dt><dd>4 min</dd></div>
+  <div><dt data-i18n="f_luz">Lucerne by boat</dt><dd>55 min</dd></div>
+</dl>
+
+<section class="block" id="experiences">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-i18n="exp_kicker">Experience packages</div>
+      <h2 data-i18n="exp_h2">Not just a room. A few days that belong together.</h2>
+      <p data-i18n="exp_p">Every package bundles the room, meals and our own small extras into one price. Choose one, pick your dates, done.</p>
+    </div>
+    <div class="pk-grid" id="pkGrid"></div>
+    <div class="notes-row">
+      <div class="note" data-n="2" data-i18n="n2">Opaque package price: guests compare experiences, not room rates on booking portals.</div>
+      <div class="note" data-n="3" data-i18n="n3">Perks cost the hotel little: the spa at 11 am, the kitchen at 3 pm, the bikes on a Wednesday.</div>
+    </div>
+  </div>
+</section>
+
+<section class="block group" id="partners" hidden>
+  <div class="wrap group-grid">
+    <div>
+      <div class="sec-head" style="margin-bottom:24px">
+        <div class="kicker">Charme-Hotels Zentralschweiz</div>
+        <h2 data-i18n="g_h2">Four houses, one journey.</h2>
+        <p data-i18n="g_p">Together with three partner hotels we offer routes from the lake to the biosphere and up into the Alps. One booking, one contact.</p>
+      </div>
+      <ol class="houses" id="houses"></ol>
+      <button class="btn-x" data-open="group"><span data-i18n="g_btn">Plan the route</span> <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+      <br><a class="assoc-link" href="https://association.toubacko.com#from-hotel" data-i18n="assoc">Visit the association's website →</a>
+      <div class="note" data-n="5" style="margin-top:18px" data-i18n="n5">Partner hotels chain their packages into one journey. The guest stays inside the group instead of booking competitors along the way.</div>
+    </div>
+    <div class="map" aria-label="Route map">
+      <svg viewBox="0 0 420 340" role="img" aria-labelledby="mapT">
+        <title id="mapT">Route Vitznau, Weggis, Entlebuch, Hasliberg</title>
+        <path d="M228 96 C250 80 290 84 312 96 C330 106 352 98 372 108 C384 116 372 128 352 126 C330 124 318 134 300 140 C282 146 262 138 252 126 C242 116 226 112 228 96Z" fill="var(--water)" opacity=".55"/>
+        <path d="M60 300 C120 250 170 280 220 240 C260 210 300 250 360 220" fill="none" stroke="var(--m-far)" stroke-width="22" stroke-linecap="round" opacity=".5"/>
+        <path d="M300 112 L282 104 L104 128 L188 286" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="6 6" stroke-linecap="round"/>
+        <g font-family="Hanken Grotesk, Arial, sans-serif" font-size="13" fill="var(--ink)">
+          <circle cx="300" cy="112" r="8" fill="var(--lake)"/><text x="312" y="154" font-weight="700">1 Vitznau</text>
+          <circle cx="282" cy="104" r="6" fill="var(--card)" stroke="var(--lake)" stroke-width="3"/><text x="238" y="74">2 Weggis</text>
+          <circle cx="104" cy="128" r="6" fill="var(--card)" stroke="var(--lake)" stroke-width="3"/><text x="62" y="110">3 Entlebuch</text>
+          <circle cx="188" cy="286" r="6" fill="var(--card)" stroke="var(--lake)" stroke-width="3"/><text x="200" y="306">4 Hasliberg</text>
+          <text x="318" y="92" font-size="11" fill="var(--muted)" font-style="italic" data-i18n="map_lake">Lake Lucerne</text>
+          <text x="232" y="214" font-size="11" fill="var(--muted)" font-style="italic" data-i18n="map_alps">Bernese Oberland</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div>Example Hotel · Seestrasse 1 · 6354 Vitznau · <span data-i18n="fict">fictional hotel</span></div>
+    <div class="tbf"><span data-i18n="f_note">Hotel is fictional. Packages and booking form are real Toubacko software.</span> <b>toubacko.com</b> · partners@toubacko.com</div>
+  </div>
+</footer>
+
+<!-- booking window -->
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal-box">
+    <div class="modal-head"><strong id="mTitle">Example Hotel</strong><button class="x" id="mClose" aria-label="Close">×</button></div>
+    <iframe id="mFrame" title="Toubacko booking" loading="lazy"></iframe>
+    <div class="modal-foot">
+      <span class="note" data-n="4" data-i18n="n4" style="max-width:none">Payment goes directly to the hotel via Stripe. No intermediary, no commission to a portal.</span>
+      <a id="mLink" href="#" target="_blank" rel="noopener" data-i18n="newtab">Window empty? Open in a new tab</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const URLS={single:"https://toubacko.com/be-inspired/index.html?company=212",group:"https://toubacko.com/be-inspired/index.html?company=16"};
+
+const T={
+en:{pill:"Live demo",st1:"Hotel",st2:"Association",st3:"Local Hero",assoc:"Visit the association's website →",s1:"One hotel",s2:"Hotel group",explain:"Explain",yourhotel:"Your hotel too? →",
+intro:"This is how Toubacko looks on a hotel's own website. Click “Live the Experience” and play a booking through to the end. Everything works.",
+demo:"Demo",nav_rooms:"Rooms",nav_exp:"Experiences",nav_partners:"Partner hotels",nav_contact:"Contact",
+kicker:"Vitznau · Lake Lucerne",h1:"On the water, below the Rigi.",lead:"A small lakeside house with 24 rooms, a terrace over the water and a kitchen that knows its farmers by name.",
+bookroom:"Book a room",f_rooms:"Rooms",f_lake:"To the lake",f_rigi:"Rigi railway",f_luz:"Lucerne by boat",
+exp_kicker:"Experience packages",exp_h2:"Not just a room. A few days that belong together.",exp_p:"Every package bundles the room, meals and our own small extras into one price. Choose one, pick your dates, done.",
+nights:"2 nights",from:"from, per person",
+g_h2:"Four houses, one journey.",g_p:"Together with three partner hotels we offer routes from the lake to the biosphere and up into the Alps. One booking, one contact.",g_btn:"Plan the route",you:"You are here",
+map_lake:"Lake Lucerne",map_alps:"Bernese Oberland",fict:"fictional hotel",f_note:"Hotel is fictional. Packages and booking form are real Toubacko software.",newtab:"Window empty? Open in a new tab",
+n1:"One code snippet on the hotel's own website. No new website, no booking portal in between.",
+n2:"Opaque package price: guests compare experiences, not room rates on booking portals.",
+n3:"Perks cost the hotel little: the spa at 11 am, the kitchen at 3 pm, the bikes on a Wednesday.",
+n4:"Payment goes directly to the hotel via Stripe. No intermediary, no commission to a portal.",
+n5:"Partner hotels chain their packages into one journey. The guest stays inside the group instead of booking competitors along the way.",
+groupTitle:"Charme-Hotels Zentralschweiz",
+pk:[["Active Lake","Boat trips, swimming spots and a picnic box, then along the shore on hotel bikes.",["Picnic box","Terrace drink","Hotel bikes"]],
+["Hike & Bike","Rigi trails with discounted mountain railway tickets and a massage when you get back.",["Massage","Mountain railway","Welcome gift"]],
+["Girls just wanna have fun!","Two friends, two days, no everyday life. Dinner, drinks on the terrace, the lake to yourselves.",["Dinner","Terrace drink","Hotel bikes"]],
+["Foodie Experience","Six courses with wine pairing from our kitchen, then the lake at night.",["6-course menu","Wine pairing","Terrace drink"]]],
+houses:[["Example Hotel","Vitznau · the lake"],["Hotel Demoblick","Weggis · lakeside promenade"],["Drei Demokönige","Entlebuch · UNESCO biosphere"],["Hotel Demohorn","Hasliberg · alpine passes"]]},
+de:{pill:"Live-Demo",st1:"Hotel",st2:"Verband",st3:"Local Hero",assoc:"Zur Website des Verbands →",s1:"Ein Hotel",s2:"Hotel-Verbund",explain:"Erklären",yourhotel:"Auch für Ihr Hotel? →",
+intro:"So sieht Toubacko auf der eigenen Website eines Hotels aus. Klicken Sie auf «Live the Experience» und spielen Sie eine Buchung bis zum Schluss durch. Alles funktioniert.",
+demo:"Demo",nav_rooms:"Zimmer",nav_exp:"Erlebnisse",nav_partners:"Partnerhotels",nav_contact:"Kontakt",
+kicker:"Vitznau · Vierwaldstättersee",h1:"Am Wasser, unter der Rigi.",lead:"Ein kleines Haus am See mit 24 Zimmern, einer Terrasse über dem Wasser und einer Küche, die ihre Bauern beim Namen kennt.",
+bookroom:"Zimmer buchen",f_rooms:"Zimmer",f_lake:"Zum See",f_rigi:"Rigi-Bahn",f_luz:"Luzern per Schiff",
+exp_kicker:"Erlebnis-Packages",exp_h2:"Nicht nur ein Zimmer. Ein paar Tage, die zusammenpassen.",exp_p:"Jedes Package bündelt Zimmer, Essen und unsere kleinen Extras zu einem Preis. Auswählen, Daten wählen, fertig.",
+nights:"2 Nächte",from:"ab, pro Person",
+g_h2:"Vier Häuser, eine Reise.",g_p:"Mit drei Partnerhotels bieten wir Routen vom See in die Biosphäre und hinauf in die Alpen. Eine Buchung, ein Ansprechpartner.",g_btn:"Route planen",you:"Sie sind hier",
+map_lake:"Vierwaldstättersee",map_alps:"Berner Oberland",fict:"fiktives Hotel",f_note:"Das Hotel ist fiktiv. Packages und Buchungsformular sind echte Toubacko-Software.",newtab:"Fenster leer? In neuem Tab öffnen",
+n1:"Ein Code-Snippet auf der eigenen Hotel-Website. Keine neue Website, kein Buchungsportal dazwischen.",
+n2:"Opaker Paketpreis: Gäste vergleichen Erlebnisse, nicht Zimmerpreise auf Buchungsportalen.",
+n3:"Perks kosten das Hotel wenig: der Spa um 11 Uhr, die Küche um 15 Uhr, die Velos am Mittwoch.",
+n4:"Die Zahlung geht via Stripe direkt ans Hotel. Kein Zwischenhändler, keine Portal-Kommission.",
+n5:"Partnerhotels verketten ihre Packages zu einer Reise. Der Gast bleibt im Verbund, statt unterwegs bei der Konkurrenz zu buchen.",
+groupTitle:"Charme-Hotels Zentralschweiz",
+pk:[["Active Lake","Schifffahrten, Badeplätze und eine Picknick-Box, danach mit den Hotel-Velos dem Ufer entlang.",["Picknick-Box","Terrassen-Drink","Hotel-Velos"]],
+["Wandern & Velo","Rigi-Wege mit vergünstigten Bergbahn-Tickets und einer Massage nach der Rückkehr.",["Massage","Bergbahn","Willkommensgeschenk"]],
+["Girls just wanna have fun!","Zwei Freundinnen, zwei Tage, kein Alltag. Abendessen, Drinks auf der Terrasse, der See für euch.",["Abendessen","Terrassen-Drink","Hotel-Velos"]],
+["Foodie Experience","Sechs Gänge mit Weinbegleitung aus unserer Küche, danach der See bei Nacht.",["6-Gang-Menü","Weinbegleitung","Terrassen-Drink"]]],
+houses:[["Example Hotel","Vitznau · am See"],["Hotel Demoblick","Weggis · Seepromenade"],["Drei Demokönige","Entlebuch · UNESCO-Biosphäre"],["Hotel Demohorn","Hasliberg · Alpenpässe"]]},
+fr:{pill:"Démo en direct",st1:"Hôtel",st2:"Association",st3:"Local Hero",assoc:"Voir le site de l’association →",s1:"Un hôtel",s2:"Groupe d’hôtels",explain:"Expliquer",yourhotel:"Pour votre hôtel ? →",
+intro:"Voici Toubacko sur le site web d’un hôtel. Cliquez sur « Live the Experience » et faites une réservation jusqu’au bout. Tout fonctionne.",
+demo:"Démo",nav_rooms:"Chambres",nav_exp:"Expériences",nav_partners:"Hôtels partenaires",nav_contact:"Contact",
+kicker:"Vitznau · Lac des Quatre-Cantons",h1:"Au bord de l’eau, sous le Rigi.",lead:"Une petite maison au bord du lac : 24 chambres, une terrasse sur l’eau et une cuisine qui connaît ses producteurs par leur nom.",
+bookroom:"Réserver une chambre",f_rooms:"Chambres",f_lake:"Jusqu’au lac",f_rigi:"Train du Rigi",f_luz:"Lucerne en bateau",
+exp_kicker:"Forfaits expérience",exp_h2:"Pas seulement une chambre. Quelques jours qui vont ensemble.",exp_p:"Chaque forfait réunit la chambre, les repas et nos petites attentions en un seul prix. Choisissez, indiquez vos dates, c’est fait.",
+nights:"2 nuits",from:"dès, par personne",
+g_h2:"Quatre maisons, un seul voyage.",g_p:"Avec trois hôtels partenaires, nous proposons des itinéraires du lac à la biosphère et jusque dans les Alpes. Une réservation, un interlocuteur.",g_btn:"Planifier l’itinéraire",you:"Vous êtes ici",
+map_lake:"Lac des Quatre-Cantons",map_alps:"Oberland bernois",fict:"hôtel fictif",f_note:"L’hôtel est fictif. Les forfaits et le formulaire de réservation sont le vrai logiciel Toubacko.",newtab:"Fenêtre vide ? Ouvrir dans un nouvel onglet",
+n1:"Un simple bout de code sur le site de l’hôtel. Pas de nouveau site, pas de portail de réservation entre les deux.",
+n2:"Prix forfaitaire opaque : les clients comparent des expériences, pas des prix de chambre sur les portails.",
+n3:"Les avantages coûtent peu à l’hôtel : le spa à 11 h, la cuisine à 15 h, les vélos un mercredi.",
+n4:"Le paiement va directement à l’hôtel via Stripe. Aucun intermédiaire, aucune commission de portail.",
+n5:"Les hôtels partenaires enchaînent leurs forfaits en un seul voyage. Le client reste dans le groupe au lieu de réserver chez la concurrence.",
+groupTitle:"Charme-Hotels Zentralschweiz",
+pk:[["Active Lake","Bateau, baignade et panier pique-nique, puis la rive à vélo.",["Panier pique-nique","Apéritif en terrasse","Vélos de l’hôtel"]],
+["Randonnée & vélo","Sentiers du Rigi avec billets de train de montagne à prix réduit et un massage au retour.",["Massage","Train de montagne","Cadeau de bienvenue"]],
+["Girls just wanna have fun!","Deux amies, deux jours, loin du quotidien. Dîner, verres en terrasse, le lac pour vous.",["Dîner","Apéritif en terrasse","Vélos de l’hôtel"]],
+["Foodie Experience","Six plats avec accords mets et vins, puis le lac de nuit.",["Menu 6 plats","Accords vins","Apéritif en terrasse"]]],
+houses:[["Example Hotel","Vitznau · au bord du lac"],["Hotel Demoblick","Weggis · promenade du lac"],["Drei Demokönige","Entlebuch · biosphère UNESCO"],["Hotel Demohorn","Hasliberg · cols alpins"]]},
+pt:{pill:"Demo ao vivo",st1:"Hotel",st2:"Associação",st3:"Local Hero",assoc:"Ver o site da associação →",s1:"Um hotel",s2:"Grupo de hotéis",explain:"Explicar",yourhotel:"Para o seu hotel? →",
+intro:"É assim que a Toubacko aparece no site do próprio hotel. Clique em “Live the Experience” e faça uma reserva até o fim. Tudo funciona.",
+demo:"Demo",nav_rooms:"Quartos",nav_exp:"Experiências",nav_partners:"Hotéis parceiros",nav_contact:"Contato",
+kicker:"Vitznau · Lago dos Quatro Cantões",h1:"À beira d’água, aos pés do Rigi.",lead:"Uma pequena casa à beira do lago: 24 quartos, um terraço sobre a água e uma cozinha que conhece seus produtores pelo nome.",
+bookroom:"Reservar quarto",f_rooms:"Quartos",f_lake:"Até o lago",f_rigi:"Trem do Rigi",f_luz:"Lucerna de barco",
+exp_kicker:"Pacotes de experiência",exp_h2:"Não só um quarto. Alguns dias que combinam.",exp_p:"Cada pacote reúne quarto, refeições e nossos pequenos extras em um só preço. Escolha, defina as datas, pronto.",
+nights:"2 noites",from:"a partir de, por pessoa",
+g_h2:"Quatro casas, uma só viagem.",g_p:"Com três hotéis parceiros oferecemos roteiros do lago à biosfera e até os Alpes. Uma reserva, um contato.",g_btn:"Planejar o roteiro",you:"Você está aqui",
+map_lake:"Lago dos Quatro Cantões",map_alps:"Oberland Bernês",fict:"hotel fictício",f_note:"O hotel é fictício. Os pacotes e o formulário de reserva são o software real da Toubacko.",newtab:"Janela vazia? Abrir em nova aba",
+n1:"Um código simples no site do próprio hotel. Sem site novo, sem portal de reservas no meio.",
+n2:"Preço de pacote opaco: o hóspede compara experiências, não diárias em portais.",
+n3:"Os mimos custam pouco ao hotel: o spa às 11h, a cozinha às 15h, as bicicletas numa quarta-feira.",
+n4:"O pagamento vai direto para o hotel via Stripe. Sem intermediário, sem comissão de portal.",
+n5:"Hotéis parceiros encadeiam seus pacotes numa só viagem. O hóspede fica no grupo em vez de reservar na concorrência pelo caminho.",
+groupTitle:"Charme-Hotels Zentralschweiz",
+pk:[["Active Lake","Passeios de barco, lugares para nadar e cesta de piquenique, depois a orla de bicicleta.",["Cesta de piquenique","Drink no terraço","Bicicletas do hotel"]],
+["Trilha & bike","Trilhas do Rigi com desconto no trem de montanha e uma massagem na volta.",["Massagem","Trem de montanha","Presente de boas-vindas"]],
+["Girls just wanna have fun!","Duas amigas, dois dias, longe da rotina. Jantar, drinks no terraço, o lago só para vocês.",["Jantar","Drink no terraço","Bicicletas do hotel"]],
+["Foodie Experience","Seis pratos com harmonização de vinhos, depois o lago à noite.",["Menu de 6 pratos","Harmonização","Drink no terraço"]]],
+houses:[["Example Hotel","Vitznau · à beira do lago"],["Hotel Demoblick","Weggis · orla do lago"],["Drei Demokönige","Entlebuch · biosfera da UNESCO"],["Hotel Demohorn","Hasliberg · passos alpinos"]]}
+};
+const PRICES=["475","637","700","750"];
+let lang="en";
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+function render(){
+  const t=T[lang];
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const v=t[el.dataset.i18n]; if(typeof v==="string") el.textContent=v;});
+  document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===lang));
+  document.getElementById("pkGrid").innerHTML=t.pk.map((p,i)=>`
+    <article class="pk"><div class="pk-top"></div><div class="pk-body">
+      <div class="pk-nights">${t.nights}</div><h3>${p[0]}</h3><p>${p[1]}</p>
+      <ul class="perks">${p[2].map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div class="pk-foot"><div class="price"><small>${t.from}</small><strong>USD ${PRICES[i]}</strong></div>
+      <button class="btn-x" data-open="single">Live the Experience</button></div></div></article>`).join("");
+  document.getElementById("houses").innerHTML=t.houses.map((h,i)=>`
+    <li><span class="n">${i+1}</span><div><strong>${h[0]}</strong><br><span>${h[1]}</span></div>${i===0?`<span class="you">${t.you}</span>`:""}</li>`).join("");
+}
+function setLang(l){lang=T[l]?l:"en";store.set("ehd-lang",lang);render();}
+document.querySelectorAll(".langs button").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
+
+function setScenario(n){
+  const g=n===2;
+  document.getElementById("s1").setAttribute("aria-pressed",!g);
+  document.getElementById("s2").setAttribute("aria-pressed",g);
+  document.getElementById("partners").hidden=!g;
+  document.getElementById("navPartners").hidden=!g;
+  if(g) document.getElementById("partners").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+}
+document.getElementById("s1").addEventListener("click",()=>setScenario(1));
+document.getElementById("s2").addEventListener("click",()=>setScenario(2));
+document.getElementById("notesToggle").addEventListener("change",e=>document.body.classList.toggle("notes",e.target.checked));
+
+const modal=document.getElementById("modal"),frame=document.getElementById("mFrame");
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-open]"); if(!b) return;
+  const kind=b.dataset.open; const url=URLS[kind];
+  document.getElementById("mTitle").textContent=kind==="group"?T[lang].groupTitle:"Example Hotel · Experiences";
+  document.getElementById("mLink").href=url;
+  if(frame.src!==url) frame.src=url;
+  modal.hidden=false; document.getElementById("mClose").focus();
+});
+function closeModal(){modal.hidden=true;}
+document.getElementById("mClose").addEventListener("click",closeModal);
+modal.addEventListener("click",e=>{if(e.target===modal) closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden) closeModal();});
+
+const saved=store.get("ehd-lang"),nav=(navigator.language||"en").slice(0,2);
+setLang(saved||(T[nav]?nav:"en"));
+</script>
+</body>
+</html>
